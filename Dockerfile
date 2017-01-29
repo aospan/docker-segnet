@@ -57,7 +57,7 @@ RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 
 WORKDIR /workspace
 RUN wget "http://mi.eng.cam.ac.uk/~agk34/resources/SegNet/segnet_sun_low_resolution.caffemodel"
-COPY webcam_demo.py /workspace
+COPY segnet_demo.py /workspace
 COPY segnet.sh /workspace
 COPY in /workspace/in/
 COPY segnet_sun_low_resolution.prototxt /workspace
