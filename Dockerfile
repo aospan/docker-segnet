@@ -28,18 +28,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl -k https://bootstrap.pypa.io/get-pip.py  > get-pip.py && python get-pip.py && \
     rm -rf /var/lib/apt/lists/*
 
-        #libopencv-dev \
-	#python-opencv \
-
+WORKDIR /workspace
+#slow download. put it first - this will speedup rebuilds
+RUN wget "http://mi.eng.cam.ac.uk/~agk34/resources/SegNet/segnet_sun_low_resolution.caffemodel"
+ 
 WORKDIR /opt
-RUN git clone -b 2.4 https://github.com/Itseez/opencv.git && \
+RUN cd /opt && git clone -b 2.4 https://github.com/Itseez/opencv.git && \
 	mkdir opencv/build && cd opencv/build && \
 	cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ../ && \
-	make -j"$(nproc)" && make -j"$(nproc)" install
+	make -j"$(nproc)" && make -j"$(nproc)" install && rm -rf /opt/opencv
 
 ENV CAFFE_ROOT=/opt/caffe
 WORKDIR $CAFFE_ROOT
-
 
 # FIXME: clone a specific git tag and use ARG instead of ENV once DockerHub supports this.
 ENV CLONE_TAG="segnet-cleaned"
@@ -55,12 +55,11 @@ ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
 ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 
-WORKDIR /workspace
-RUN wget "http://mi.eng.cam.ac.uk/~agk34/resources/SegNet/segnet_sun_low_resolution.caffemodel"
 COPY segnet_demo.py /workspace
 COPY segnet.sh /workspace
 COPY in /workspace/in/
 COPY segnet_sun_low_resolution.prototxt /workspace
 COPY camvid12.png /workspace/
-
 CMD /workspace/segnet.sh
+
+WORKDIR /workspace

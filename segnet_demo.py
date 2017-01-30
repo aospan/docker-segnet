@@ -48,8 +48,6 @@ while rval:
 	start = time.time()
 	rval, frame = cap.read()
 
-        print 'aospan rval=', rval
-
         if rval == False:
             break
 
